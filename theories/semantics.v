@@ -258,7 +258,7 @@ Lemma int_type_ren {Δ Δ' A k} (h : TyWt Δ A k)
 Proof.
   move : ξ Δ' ξ' f hf hξ.
   elim : Δ A k / h.
-  - move => *. simp ty_renaming int_type.
+  - move => Δ i k l ξ Δ' ξ' f hf hξ. simp ty_renaming int_type. apply hξ.
   - move => Δ A k0 k1 h ih ξ Δ' ξ' f hf hl.
     simp int_type ty_renaming int_eq => /=. rewrite -/int_kind.
     move => p0 p1. simp int_type ty_renaming.
@@ -274,7 +274,8 @@ Proof.
     move => B.
     suff : forall s, int_eq k s s -> (int_type hA (V_Cons s ξ) B <-> int_type (ty_renaming hA (ren_up Δ Δ' hf)) (V_Cons s ξ') B) by hauto lq:on.
     move => s hs. simp int_eq in ihA. apply ihA.
-    move => i k0 l. dependent elimination l; simp int_eq V_Cons.
+    move => i k0 l. dependent elimination l; simp int_eq V_Cons ren_up.
+    apply h.
 Qed.
 
 Lemma int_eq_sym k p0 p1 : int_eq k p0 p1 -> int_eq k p1 p0.
@@ -306,13 +307,13 @@ Lemma int_type_morph {Δ Δ' A k} (h : TyWt Δ A k) :
 Proof.
   move : Δ'.
   elim : Δ A k /h.
-  - move => *. simp int_type.
+  - move => Δ i k l Δ' ρ ξ ξ' hρ hξ' hρ'. simp int_type. apply hρ'.
   - move => Δ A k0 k1 hA ihA Δ' ρ ξ ξ' hρ hξ' hρ' /=.
     simp int_type int_eq => p0 p1 hp.
     apply ihA => i k l.
     + dependent elimination l; simp int_eq V_Cons; eauto using int_eq_ok1, int_eq_ok0.
     + dependent elimination l.
-      * rewrite /morph_up. simp morph_ok_ext.
+      * rewrite /morph_up. simp morph_ok_ext V_Cons int_type. apply hp.
       * rewrite /morph_up. simp morph_ok_ext.
         simp V_Cons.
         rewrite /morph_ren_comp.
@@ -330,9 +331,10 @@ Proof.
     + dependent elimination l;
         rewrite /morph_up /morph_ren_comp;
         simp morph_ok_ext int_type V_Cons ty_renaming.
-      have : int_eq _ (int_type (hρ n A1 l) ξ') (int_type (ty_renaming (hρ n A1 l) (ren_S B Δ')) (V_Cons s ξ')) by
-        hauto l:on use:int_type_ren rew:db:V_Cons, ren_S.
-      hauto l:on use:int_eq_trans.
+      * simp V_Cons. apply hs.
+      * have : int_eq _ (int_type (hρ n A1 l) ξ') (int_type (ty_renaming (hρ n A1 l) (ren_S B Δ')) (V_Cons s ξ')) by
+          hauto l:on use:int_type_ren rew:db:V_Cons, ren_S.
+        hauto l:on use:int_eq_trans.
 Qed.
 
 Lemma ty_sem_preservation Δ A B k (h0 : TyWt Δ A k) (h1 : TyWt Δ B k) ξ0 ξ1 :
@@ -455,7 +457,8 @@ Lemma def_cand_adequate k : adequateP _ (def_cand k).
   elim : k => /=.
   - firstorder using red_props.CR_SN.
   - move => k0 hk0 k1 hk1.
-    simp adequateP.
+    simp adequateP def_cand.
+    rewrite /const. auto.
 Qed.
 
 Lemma def_cand_per k : int_eq _ (def_cand k) (def_cand k).

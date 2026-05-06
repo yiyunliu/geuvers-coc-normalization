@@ -1,6 +1,7 @@
-From Coq Require Export ssreflect ssrbool.
-From Coq Require Export Logic.PropExtensionality
-  (propositional_extensionality) Program.Basics (const).
+From Stdlib Require Export ssreflect ssrbool.
+From Stdlib Require Export Logic.PropExtensionality
+  (propositional_extensionality).
+From Corelib Require Export Basics (const).
 From Equations Require Export Equations.
 Require Export Autosubst2.syntax Autosubst2.core Autosubst2.unscoped.
 Export CombineNotations.
